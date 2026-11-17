@@ -1,0 +1,55 @@
+name: Publicar portfolio (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Construir el proyecto y generar la documentación de dbt
+        run: |
+          python scripts/generar_datos.py
+          dbt build --profiles-dir .
+          dbt docs generate --static --profiles-dir .
+
+      - name: Armar el sitio (portada + documentación dbt)
+        run: |
+          mkdir -p _site/docs
+          cp site/index.html _site/index.html
+          cp target/static_index.html _site/docs/index.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leonel Bordon · Portfolio de datos</title>
+  <meta name="description" content="Portfolio de Analytics / Data Engineering de Leonel Bordon: pipeline dbt de analítica logística con modelo dimensional, carga incremental, tests de calidad y CI.">
+  <style>
+    :root {
+      --bg: #f7f8fa; --surface: #ffffff; --text: #1d2433; --muted: #5b6475;
+      --accent: #1f6feb; --accent-soft: #e8f0fe; --border: #e3e6eb; --ok: #1a7f37;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f141b; --surface: #161c25; --text: #e6e9ef; --muted: #9aa3b2;
+        --accent: #58a6ff; --accent-soft: #1b2a3f; --border: #263041; --ok: #3fb950;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 56px 16px 72px; }
+    header h1 { font-size: 2rem; margin: 0 0 4px; letter-spacing: -0.02em; }
+    header .role { color: var(--accent); font-weight: 600; margin: 0 0 16px; }
+    header p { color: var(--muted); margin: 0; max-width: 640px; }
+    .stack { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; padding: 0; list-style: none; }
+    .stack li {
+      background: var(--accent-soft); color: var(--accent); border-radius: 999px;
+      padding: 4px 12px; font-size: 0.85rem; font-weight: 600;
+    }
+    h2 { font-size: 1.15rem; margin: 48px 0 16px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 28px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .card h3 { margin: 0 0 8px; font-size: 1.35rem; }
+    .card .lead { color: var(--muted); margin: 0 0 20px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 0 0 24px; }
+    .grid div { border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; }
+    .grid strong { display: block; margin-bottom: 2px; }
+    .grid span { color: var(--muted); font-size: 0.92rem; }
+    .metrics { display: flex; flex-wrap: wrap; gap: 24px; margin: 0 0 24px; }
+    .metrics div { min-width: 120px; }
+    .metrics b { display: block; font-size: 1.6rem; line-height: 1.2; }
+    .metrics span { color: var(--muted); font-size: 0.85rem; }
+    .ok { color: var(--ok); }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .btn {
+      display: inline-block; padding: 10px 18px; border-radius: 10px; font-weight: 600;
+      text-decoration: none; border: 1px solid var(--accent);
+    }
+    .btn.primary { background: var(--accent); color: #fff; }
+    .btn.secondary { color: var(--accent); }
+    .btn:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 2px; }
+    ul.plain { margin: 0; padding-left: 20px; color: var(--muted); }
+    ul.plain li { margin-bottom: 6px; }
+    footer { margin-top: 56px; color: var(--muted); font-size: 0.9rem; }
+    footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>Leonel Bordon</h1>
+      <p class="role">Analytics / Data Engineer</p>
+      <p>
+        Diseño y mantengo pipelines de datos que integran múltiples sistemas de origen
+        en modelos analíticos confiables, documentados y listos para BI.
+      </p>
+      <ul class="stack">
+        <li>dbt</li><li>SQL</li><li>Python</li><li>Modelado dimensional</li>
+        <li>Lakehouse</li><li>Power BI</li><li>Git · CI/CD</li>
+      </ul>
+    </header>
+
+    <h2>Proyectos</h2>
+
+    <article class="card">
+      <h3>Analítica logística con dbt</h3>
+      <p class="lead">
+        Pipeline completo sobre una operación logística simulada (pedidos, almacenes,
+        clientes y productos): de datos crudos de un ERP a un modelo estrella con
+        indicadores de nivel de servicio por almacén.
+      </p>
+
+      <div class="metrics">
+        <div><b>20.000</b><span>pedidos procesados</span></div>
+        <div><b>43</b><span>tests de datos + 1 unit test</span></div>
+        <div><b class="ok">CI ✓</b><span>GitHub Actions en cada push</span></div>
+      </div>
+
+      <div class="grid">
+        <div><strong>Arquitectura en capas</strong><span>staging → intermediate → marts, con seeds de mapeo mantenidos por negocio.</span></div>
+        <div><strong>Limpieza de origen</strong><span>Deduplicación de clientes, normalización de textos y filtrado de líneas anuladas.</span></div>
+        <div><strong>Carga incremental</strong><span>Fact de líneas con reproceso configurable de días para datos que llegan tarde.</span></div>
+        <div><strong>Calidad verificable</strong><span>Integridad referencial, claves compuestas, cuadre entre facts y unit test de reglas de negocio.</span></div>
+      </div>
+
+      <div class="actions">
+        <a class="btn primary" href="docs/">Ver documentación y lineage</a>
+        <a class="btn secondary" href="https://github.com/Leonelbor2705/dbt-logistica-portfolio">Ver código en GitHub</a>
+      </div>
+    </article>
+
+    <h2>Cómo trabajo</h2>
+    <ul class="plain">
+      <li>Entiendo la regla de negocio antes de escribir SQL, y la dejo documentada.</li>
+      <li>Cada modelo llega con tests: si un número cambia, quiero saber por qué antes que el usuario.</li>
+      <li>Optimizo procesos validando los resultados contra la versión anterior.</li>
+      <li>Reviso el impacto aguas abajo (lineage) antes de cada cambio.</li>
+    </ul>
+
+    <footer>
+      <a href="https://github.com/Leonelbor2705">github.com/Leonelbor2705</a>
+    </footer>
+  </main>
+</body>
+</html>
