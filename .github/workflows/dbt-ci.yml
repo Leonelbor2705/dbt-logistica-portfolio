@@ -1,0 +1,29 @@
+name: dbt CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Generar datos de origen
+        run: python scripts/generar_datos.py
+
+      - name: dbt build (modelos + tests + unit tests)
+        run: dbt build --profiles-dir .
+
+      - name: Segunda corrida (valida la carga incremental)
+        run: dbt build --select fct_lineas_pedido+ --profiles-dir .

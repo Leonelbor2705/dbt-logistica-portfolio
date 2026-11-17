@@ -1,0 +1,7 @@
+logistica_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: logistica.duckdb
+      threads: 4

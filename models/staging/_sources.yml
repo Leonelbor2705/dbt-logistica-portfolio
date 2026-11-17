@@ -1,0 +1,23 @@
+version: 2
+
+sources:
+  - name: erp
+    description: >
+      Extracciones del ERP logístico (simuladas con scripts/generar_datos.py).
+      Se leen directamente desde CSV con DuckDB, sin carga previa.
+    config:
+      meta:
+        external_location: "read_csv('data/raw/{name}.csv', header = true, auto_detect = true)"
+    tables:
+      - name: almacenes
+        description: Maestro de almacenes.
+      - name: productos
+        description: Maestro de productos. La categoría llega con mayúsculas y espacios inconsistentes.
+      - name: clientes
+        description: >
+          Maestro de clientes. Un mismo cliente puede aparecer varias veces
+          (una fila por actualización); la vigente es la de fecha_actualizacion más reciente.
+      - name: pedidos
+        description: Cabecera de pedidos. Estado con formato inconsistente.
+      - name: lineas_pedido
+        description: Líneas de pedido. Puede traer líneas con cantidad 0 (anuladas en origen).

@@ -1,0 +1,18 @@
+version: 2
+
+seeds:
+  - name: map_categorias
+    description: >
+      Tabla de mapeo mantenida por negocio. Traduce la categoría de producto
+      normalizada (como llega de origen) a su nombre oficial y la agrupa en familias.
+    columns:
+      - name: categoria_clave
+        description: Categoría en minúsculas y sin espacios, tal como queda tras normalizar el origen.
+        data_tests: [unique, not_null]
+      - name: categoria
+        data_tests: [not_null]
+      - name: familia
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Alimentación", "Hogar", "No alimentación"]

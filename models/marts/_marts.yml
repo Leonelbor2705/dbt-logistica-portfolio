@@ -1,0 +1,113 @@
+version: 2
+
+models:
+  - name: dim_fecha
+    description: Calendario diario entre las variables `fecha_desde` y `fecha_hasta`.
+    columns:
+      - name: fecha
+        data_tests: [unique, not_null]
+      - name: fecha_id
+        description: Fecha en formato YYYYMMDD (entero), útil como clave en herramientas de BI.
+        data_tests: [unique, not_null]
+
+  - name: dim_cliente
+    description: Clientes en su versión vigente.
+    columns:
+      - name: cliente_id
+        data_tests: [unique, not_null]
+
+  - name: dim_producto
+    description: Productos con categoría y familia oficiales.
+    columns:
+      - name: producto_id
+        data_tests: [unique, not_null]
+
+  - name: dim_almacen
+    description: Almacenes de la red logística.
+    columns:
+      - name: almacen_id
+        data_tests: [unique, not_null]
+
+  - name: fct_lineas_pedido
+    description: >
+      Hecho de ventas a nivel línea de pedido (pedidos no cancelados).
+      Materialización incremental con reproceso de los últimos `dias_reproceso` días.
+    data_tests:
+      - unique_combinacion:
+          arguments:
+            columnas: [pedido_id, linea]
+    columns:
+      - name: fecha_pedido
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_fecha')
+                field: fecha
+      - name: cliente_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_cliente')
+                field: cliente_id
+      - name: producto_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_producto')
+                field: producto_id
+      - name: almacen_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_almacen')
+                field: almacen_id
+      - name: importe_neto
+        description: Importe tras aplicar el descuento de la línea.
+        data_tests: [not_null]
+
+  - name: fct_pedidos
+    description: >
+      Hecho a nivel pedido con totales de las líneas e indicadores de nivel de servicio.
+      Incluye pedidos cancelados (con importe 0) para poder medir cancelaciones.
+    columns:
+      - name: pedido_id
+        data_tests: [unique, not_null]
+      - name: dias_retraso
+        description: Días entre la fecha comprometida y la de entrega. Negativo = entregado antes. Nulo si no se entregó.
+      - name: entregado_a_tiempo
+        description: Verdadero si se entregó en la fecha comprometida o antes. Nulo si no se entregó.
+
+  - name: agg_nivel_servicio_mensual
+    description: Indicadores mensuales por almacén (pedidos, cancelaciones, nivel de servicio, importe y peso).
+    data_tests:
+      - unique_combinacion:
+          arguments:
+            columnas: [anio_mes, almacen_id]
+    columns:
+      - name: nivel_servicio
+        description: Pedidos entregados a tiempo / pedidos entregados (0 a 1).
+
+unit_tests:
+  - name: test_fct_pedidos_calcula_nivel_de_servicio
+    description: >
+      Comprueba la regla de negocio de "entregado a tiempo": a tiempo si se entrega
+      en la fecha comprometida o antes; nulo si el pedido no se entregó.
+    model: fct_pedidos
+    given:
+      - input: ref('stg_erp__pedidos')
+        rows:
+          - {pedido_id: 1, cliente_id: 1, almacen_id: 1, fecha_pedido: 2025-03-01, fecha_comprometida: 2025-03-03, fecha_entrega: 2025-03-03, estado: Entregado}
+          - {pedido_id: 2, cliente_id: 1, almacen_id: 1, fecha_pedido: 2025-03-01, fecha_comprometida: 2025-03-03, fecha_entrega: 2025-03-05, estado: Entregado}
+          - {pedido_id: 3, cliente_id: 1, almacen_id: 1, fecha_pedido: 2025-03-01, fecha_comprometida: 2025-03-03, fecha_entrega: 2025-03-02, estado: Entregado}
+          - {pedido_id: 4, cliente_id: 1, almacen_id: 1, fecha_pedido: 2025-03-01, fecha_comprometida: 2025-03-03, fecha_entrega: null, estado: Pendiente}
+      - input: ref('int_lineas_pedido_valoradas')
+        rows:
+          - {pedido_id: 1, cantidad: 10, importe_neto: 100.00, peso_total_kg: 5.0}
+          - {pedido_id: 1, cantidad: 5, importe_neto: 50.00, peso_total_kg: 2.5}
+    expect:
+      rows:
+        - {pedido_id: 1, num_lineas: 2, importe_neto: 150.00, dias_retraso: 0, entregado_a_tiempo: true}
+        - {pedido_id: 2, num_lineas: 0, importe_neto: 0, dias_retraso: 2, entregado_a_tiempo: false}
+        - {pedido_id: 3, num_lineas: 0, importe_neto: 0, dias_retraso: -1, entregado_a_tiempo: true}
+        - {pedido_id: 4, num_lineas: 0, importe_neto: 0, dias_retraso: null, entregado_a_tiempo: null}

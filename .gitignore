@@ -1,0 +1,9 @@
+.venv/
+target/
+dbt_packages/
+logs/
+*.duckdb
+*.duckdb.wal
+data/raw/
+.user.yml
+__pycache__/

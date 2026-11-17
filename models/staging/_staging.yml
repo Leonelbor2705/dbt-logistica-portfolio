@@ -1,0 +1,72 @@
+version: 2
+
+models:
+  - name: stg_erp__almacenes
+    description: Almacenes con tipos y textos limpios.
+    columns:
+      - name: almacen_id
+        data_tests: [unique, not_null]
+
+  - name: stg_erp__productos
+    description: Productos con la categoría normalizada vía la tabla de mapeo `map_categorias`.
+    columns:
+      - name: producto_id
+        data_tests: [unique, not_null]
+      - name: categoria
+        description: Si es nula, apareció una categoría en origen que no está en el mapeo.
+        data_tests: [not_null]
+
+  - name: stg_erp__clientes
+    description: Versión vigente de cada cliente (deduplicado por fecha de actualización).
+    columns:
+      - name: cliente_id
+        data_tests: [unique, not_null]
+      - name: segmento
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Gran cuenta", "Mayorista", "Minorista", "E-commerce"]
+
+  - name: stg_erp__pedidos
+    description: Cabecera de pedidos con el estado normalizado.
+    columns:
+      - name: pedido_id
+        data_tests: [unique, not_null]
+      - name: estado
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Entregado", "Pendiente", "Cancelado"]
+      - name: cliente_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_erp__clientes')
+                field: cliente_id
+      - name: almacen_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_erp__almacenes')
+                field: almacen_id
+
+  - name: stg_erp__lineas_pedido
+    description: Líneas de pedido válidas (se excluyen las de cantidad 0).
+    data_tests:
+      - unique_combinacion:
+          arguments:
+            columnas: [pedido_id, linea]
+    columns:
+      - name: pedido_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_erp__pedidos')
+                field: pedido_id
+      - name: producto_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_erp__productos')
+                field: producto_id

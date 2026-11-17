@@ -1,0 +1,7 @@
+categoria_clave,categoria,familia,requiere_frio
+alimentación seca,Alimentación seca,Alimentación,false
+bebidas,Bebidas,Alimentación,false
+congelados,Congelados,Alimentación,true
+droguería,Droguería,Hogar,false
+electrónica,Electrónica,No alimentación,false
+textil,Textil,No alimentación,false
